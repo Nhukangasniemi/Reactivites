@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import ActivityStore from "../../../app/stores/activityStore";
 import { RouteComponentProps } from "react-router";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
+import { Link } from "react-router-dom";
 
 interface DetailsParam {
   id: string;
@@ -23,7 +24,7 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailsParam>> = ({
 
   useEffect(() => {
     loadActivity(match.params.id);
-  }, [loadActivity]);
+  }, [loadActivity, match.params.id]);
 
   if (loadingInitial || !activity) return <LoadingComponent content="Loading activity..." />;
 
@@ -41,7 +42,7 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailsParam>> = ({
       </Card.Content>
       <Card.Content extra>
         <Button.Group widths={2}>
-            <Button basic color='blue' content='Edit' onClick={() => openEditForm(activity!.id)}/>
+            <Button basic color='blue' content='Edit' as={Link} to={`/manage/${activity.id}`}/>
             <Button basic color='grey' content='Cancel' onClick={() => history.push('/activities')}/>
         </Button.Group>
       </Card.Content>

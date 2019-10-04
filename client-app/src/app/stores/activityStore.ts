@@ -8,7 +8,7 @@ configure({ enforceActions: "always" });
 class ActivityStore {
   @observable activityRegistry = new Map();
   @observable activities: IActivity[] = [];
-  @observable activity: IActivity | undefined;
+  @observable activity: IActivity | null = null;
   @observable loadingInitial = false;
   @observable editMode = false;
   @observable submitting = false;
@@ -40,6 +40,7 @@ class ActivityStore {
   };
 
   @action loadActivity = async (id: string) => {
+    console.log('loadActivity gets called')
     let activity = this.getActivity(id); // This will check if activites list was loaded or user goes straight to the single activity
     if(activity) {
       this.activity = activity
@@ -58,6 +59,10 @@ class ActivityStore {
         console.log(error)
       }
     }
+  }
+
+  @action clearActivity = () => {
+    this.activity = null;
   }
 
   getActivity = (id:string) => {
@@ -87,7 +92,7 @@ class ActivityStore {
 
   @action openCreateForm = () => {
     this.editMode = true;
-    this.activity = undefined;
+    this.activity = null;
   };
 
   @action openEditForm = (id: string) => {
@@ -96,7 +101,7 @@ class ActivityStore {
   };
 
   @action cancelSelectedActivity = () => {
-    this.activity = undefined;
+    this.activity = null;
   };
 
   @action cancelFormOpen = () => {
