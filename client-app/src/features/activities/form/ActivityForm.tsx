@@ -21,7 +21,6 @@ const ActivityForm: React.FC<RouteComponentProps<DetailsParam>> = ({
     createActivity,
     editActivity,
     submitting,
-    cancelFormOpen,
     clearActivity
   } = activityStore;
 
@@ -34,7 +33,7 @@ const ActivityForm: React.FC<RouteComponentProps<DetailsParam>> = ({
     city: "",
     venue: ""
   });
-  
+
   useEffect(() => {
     if (match.params.id && activity.id.length === 0) {
       loadActivity(match.params.id).then(
@@ -120,7 +119,7 @@ const ActivityForm: React.FC<RouteComponentProps<DetailsParam>> = ({
           positive
           type="button"
           content="Cancel"
-          onClick={cancelFormOpen}
+          onClick={() => history.push('./activities')}
         />
       </Form>
     </Segment>
