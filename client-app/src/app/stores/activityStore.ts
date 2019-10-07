@@ -25,7 +25,6 @@ class ActivityStore {
       activities[date] = activities[date] ? [...activities[date], activity]: [activity]
       return activities
     }, {} as {[key:string]: IActivity[]})
-    console.log("reduced", reducedArray)
     return Object.entries(reducedArray);
   }
 
@@ -40,7 +39,6 @@ class ActivityStore {
         });
         this.loadingInitial = false;
       });
-      console.log(this.groupActivitiesByDate(activities))
     } catch (error) {
       runInAction("load activities error", () => {
         this.loadingInitial = false;
