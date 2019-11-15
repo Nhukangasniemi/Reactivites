@@ -6,7 +6,6 @@ import { IActivity } from "../../../app/models/activity";
 import {format} from 'date-fns';
 
 const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
-  const activityStore = useContext(ActivityStore);
 
   return (
     <Segment.Group>
