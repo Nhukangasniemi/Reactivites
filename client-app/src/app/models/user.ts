@@ -1,13 +1,13 @@
-export interface IUSer {
+export interface IUser {
     username: string;
     displayName: string;
     token: string,
     image?: string,
 }
 
-export interface IUSerFormValues {
+export interface IUserFormValues {
     email: string;
     password: string;
     displayName?: string;
-    userName: string;
+    userName?: string;
 }
