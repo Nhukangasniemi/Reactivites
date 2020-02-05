@@ -55,7 +55,6 @@ const ActivityForm: React.FC<RouteComponentProps<DetailsParam>> = ({
       loadActivity(match.params.id)
         .then(activity => {
           setActivity(new ActivityFormValues(activity));
-          console.log(activity);
         })
         .finally(() => setLoading(false));
     }
