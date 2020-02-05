@@ -18,7 +18,7 @@ export default class ModalStore {
         this.modal.body = content
     }
 
-    @action closeModal = (content: any) => {
+    @action closeModal = () => {
         this.modal.open = false
         this.modal.body = null
     }

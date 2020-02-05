@@ -1,6 +1,5 @@
 import { RootStore } from './rootStore';
 import { observable, action, reaction } from 'mobx';
-import { ActivityFormValues } from './../models/activity';
 
 export default class CommonStore {
     rootStore: RootStore

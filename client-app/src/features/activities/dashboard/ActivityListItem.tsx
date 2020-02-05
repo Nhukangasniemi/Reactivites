@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Item, Button, Segment, Icon } from "semantic-ui-react";
 import { Link } from "react-router-dom";
-import ActivityStore from "../../../app/stores/activityStore";
 import { IActivity } from "../../../app/models/activity";
 import {format} from 'date-fns';
 
