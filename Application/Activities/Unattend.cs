@@ -11,7 +11,7 @@ using Persistence;
 
 namespace Application.Activities
 {
-    public class Attend
+    public class Unattend
     {
         public class Command : IRequest
         {
@@ -21,11 +21,11 @@ namespace Application.Activities
         public class Handler : IRequestHandler<Command>
         {
             private readonly DataContext _context;
-            private readonly IUserAccessor _uSerAccessor;
+            private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IUserAccessor uSerAccessor)
+            public Handler(DataContext context, IUserAccessor userAccessor)
             {
-                _uSerAccessor = uSerAccessor;
+                _userAccessor = userAccessor;
                 _context = context;
             }
 
@@ -35,18 +35,16 @@ namespace Application.Activities
                 if (activity == null)
                     throw new RestException(HttpStatusCode.NotFound, new { Activity = "Could not find activity" });
 
-                var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == _uSerAccessor.GetCurrentUsername());
+                var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == _userAccessor.GetCurrentUsername());
                 var attendance = await _context.UserActivities.SingleOrDefaultAsync(x => x.ActivityId == activity.Id && x.AppUserId == user.Id);
-                if (attendance != null)
-                    throw new RestException(HttpStatusCode.BadRequest, new { Attendance = "Already attending this activity" });
-                attendance = new UserActivity
+                if (attendance == null)
+                    return Unit.Value;
+                if (attendance.IsHost)
                 {
-                    Activity = activity,
-                    AppUser = user,
-                    IsHost = false,
-                    DateJoined = DateTime.Now
-                };
-                _context.UserActivities.Add(attendance);
+                    throw new RestException(HttpStatusCode.BadRequest, new { Attendace = "You cannot remove yourself as host" });
+                }
+                _context.UserActivities.Remove(attendance);
+                // handler logic goes here
                 var success = await _context.SaveChangesAsync() > 0;
                 if (success) return Unit.Value;
                 throw new Exception("Problem saving changes");
