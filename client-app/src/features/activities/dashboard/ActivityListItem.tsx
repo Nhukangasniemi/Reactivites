@@ -1,5 +1,5 @@
 import React from "react";
-import { Item, Button, Segment, Icon } from "semantic-ui-react";
+import { Item, Button, Segment, Icon, Label } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { IActivity } from "../../../app/models/activity";
 import { format } from "date-fns";
@@ -15,6 +15,16 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
             <Item.Content>
               <Item.Header as="a">{activity.title}</Item.Header>
               <Item.Description>Hosted by Nhu</Item.Description>
+              {activity.isHost && (
+                <Item.Description>
+                  <Label
+                    basic
+                    color="orange"
+                    content="You are hosting this activity"
+                  />
+                </Item.Description>
+              )}
+
               {/* <Button
             name={activity.id}
             loading={target === activity.id && submitting}

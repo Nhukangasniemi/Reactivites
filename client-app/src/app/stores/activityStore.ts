@@ -1,16 +1,15 @@
 import { observable, action, computed, runInAction } from "mobx";
 import { SyntheticEvent } from "react";
-import { IActivity } from "../models/activity";
+import { IActivity, IAttendee } from "../models/activity";
 import agent from "../api/agent";
-import { history } from './../../index';
+import { history } from "./../../index";
 import { toast } from "react-toastify";
-import { RootStore } from './rootStore';
+import { RootStore } from "./rootStore";
 
 export default class ActivityStore {
-
   rootStore: RootStore;
   constructor(rootStore: RootStore) {
-    this.rootStore = rootStore
+    this.rootStore = rootStore;
   }
 
   @observable activityRegistry = new Map();
@@ -20,7 +19,9 @@ export default class ActivityStore {
   @observable target = "";
 
   @computed get activitiesByDate() {
-    return this.groupActivitiesByDate(Array.from(this.activityRegistry.values()))
+    return this.groupActivitiesByDate(
+      Array.from(this.activityRegistry.values())
+    );
   }
 
   groupActivitiesByDate(activities: IActivity[]) {
@@ -28,20 +29,29 @@ export default class ActivityStore {
       (a, b) => a.date.getTime() - b.date.getTime()
     );
     const reducedArray = sortedActivities.reduce((activities, activity) => {
-      const date = activity.date.toISOString().split('T')[0];
-      activities[date] = activities[date] ? [...activities[date], activity]: [activity]
-      return activities
-    }, {} as {[key:string]: IActivity[]})
+      const date = activity.date.toISOString().split("T")[0];
+      activities[date] = activities[date]
+        ? [...activities[date], activity]
+        : [activity];
+      return activities;
+    }, {} as { [key: string]: IActivity[] });
     return Object.entries(reducedArray);
   }
 
   @action loadActivities = async () => {
     this.loadingInitial = true;
+    const user = this.rootStore.userStore.user!;
     try {
       const activities = await agent.Activities.list();
       runInAction("loading activities", () => {
         activities.forEach((activity: IActivity) => {
           activity.date = new Date(activity.date);
+          activity.isGoing = activity.attendees.some(
+            a => a.username == user?.username
+          );
+          activity.isHost = activity.attendees.some(
+            a => a.username == user?.username && a.isHost
+          );
           this.activityRegistry.set(activity.id, activity);
         });
         this.loadingInitial = false;
@@ -55,16 +65,23 @@ export default class ActivityStore {
   };
 
   @action loadActivity = async (id: string) => {
+    const user = this.rootStore.userStore.user!;
     let activity = this.getActivity(id); // This will check if activites list was loaded or user goes straight to the single activity
     if (activity) {
       this.activity = activity;
-      return activity
+      return activity;
     } else {
       this.loadingInitial = true;
       try {
         activity = await agent.Activities.details(id);
         runInAction("getting activity", () => {
           activity.date = new Date(activity.date);
+          activity.isGoing = activity.attendees.some(
+            (a: IAttendee) => a.username === user?.username
+          );
+          activity.isHost = activity.attendees.some(
+            (a: IAttendee) => a.username === user?.username && a.isHost
+          );
           this.activity = activity;
           this.activityRegistry.set(activity.id, activity);
           this.loadingInitial = false;
@@ -74,7 +91,7 @@ export default class ActivityStore {
         runInAction("get activity error", () => {
           this.loadingInitial = false;
         });
-        console.log(error)
+        console.log(error);
       }
     }
   };
@@ -95,7 +112,7 @@ export default class ActivityStore {
         this.activityRegistry.set(activity.id, activity);
         this.submitting = false;
       });
-      history.push(`/activities/${activity.id}`)
+      history.push(`/activities/${activity.id}`);
     } catch (error) {
       runInAction("create activity error", () => {
         this.submitting = false;
@@ -113,7 +130,7 @@ export default class ActivityStore {
         this.activityRegistry.set(activity.id, activity);
         this.submitting = false;
       });
-      history.push(`/activities/${activity.id}`)
+      history.push(`/activities/${activity.id}`);
     } catch (error) {
       runInAction("edit activity error", () => {
         this.submitting = false;
@@ -143,4 +160,3 @@ export default class ActivityStore {
     }
   };
 }
-
