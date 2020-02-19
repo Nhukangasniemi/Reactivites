@@ -20,14 +20,12 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailsParam>> = ({
   const { activity, loadActivity, loadingInitial } = rootStore.activityStore;
 
   useEffect(() => {
-    loadActivity(match.params.id)
+    loadActivity(match.params.id);
   }, [loadActivity, match.params.id, history]);
 
-  if (loadingInitial)
-    return <LoadingComponent content="Loading activity..." />;
+  if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
 
-  if(!activity)
-    return <h2>Activity Not Found</h2>
+  if (!activity) return <h2>Activity Not Found</h2>;
 
   return (
     <Grid>
@@ -37,7 +35,7 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailsParam>> = ({
         <ActivityDetailedChat activity={activity} />
       </Grid.Column>
       <Grid.Column width={6}>
-        <ActivityDetailedSidebar />
+        <ActivityDetailedSidebar attendees={activity.attendees} />
       </Grid.Column>
     </Grid>
   );
