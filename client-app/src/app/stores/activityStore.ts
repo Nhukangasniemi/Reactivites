@@ -47,10 +47,10 @@ export default class ActivityStore {
         activities.forEach((activity: IActivity) => {
           activity.date = new Date(activity.date);
           activity.isGoing = activity.attendees.some(
-            a => a.username == user?.username
+            a => a.username == user.username
           );
           activity.isHost = activity.attendees.some(
-            a => a.username == user?.username && a.isHost
+            a => a.username == user.username && a.isHost
           );
           this.activityRegistry.set(activity.id, activity);
         });
@@ -77,10 +77,10 @@ export default class ActivityStore {
         runInAction("getting activity", () => {
           activity.date = new Date(activity.date);
           activity.isGoing = activity.attendees.some(
-            (a: IAttendee) => a.username === user?.username
+            (a: IAttendee) => a.username === user.username
           );
           activity.isHost = activity.attendees.some(
-            (a: IAttendee) => a.username === user?.username && a.isHost
+            (a: IAttendee) => a.username === user.username && a.isHost
           );
           this.activity = activity;
           this.activityRegistry.set(activity.id, activity);
