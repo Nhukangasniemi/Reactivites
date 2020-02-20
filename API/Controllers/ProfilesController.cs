@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Application.Profiles;
 using Microsoft.AspNetCore.Mvc;
+using Details = Application.Profiles.Details;
 
 namespace API.Controllers
 {
