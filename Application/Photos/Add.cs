@@ -45,10 +45,11 @@ namespace Application.Photos
                 {
                     photo.IsMain = true;
                 }
+                user.Photos.Add(photo);
                 // handler logic goes here
                 var success = await _context.SaveChangesAsync() > 0;
                 if (success) return photo;
-                throw new Exception("Problem saving changes");
+                throw new Exception("Problem saving photo");
             }
         }
     }
