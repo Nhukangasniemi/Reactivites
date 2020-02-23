@@ -28,7 +28,6 @@ export default class ProfileStore {
     try {
       const profile = await agent.Profiles.get(username);
       runInAction(() => {
-        console.log(profile);
         this.profile = profile;
         this.loadingProfile = false;
       });
@@ -100,4 +99,18 @@ export default class ProfileStore {
       });
     }
   };
+
+  @action updateProfile = async (profile: Partial<IProfile>) => {
+    try {
+      await agent.Profiles.updateProfile(profile)
+      runInAction(() => {
+        if(profile.displayName !== this.rootStore.userStore.user!.displayName) {
+          this.rootStore.userStore.user!.displayName = profile.displayName!
+        }
+        this.profile = {...this.profile!, ...profile}
+      })
+    } catch (err) {
+      toast.error('Problem updating profile')
+    }
+  }
 }
