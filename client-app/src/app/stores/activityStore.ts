@@ -49,6 +49,16 @@ export default class ActivityStore {
     this.hubConnection!.stop();
   }
 
+  //Not using axios but invoking method on server, directly from client
+  @action addComment = async (values: any) => {
+    values.activityId = this.activity!.id;
+    try {
+      await this.hubConnection!.invoke("SendComment", values)
+    } catch (err) {
+      console.log((err))
+    }
+  }
+
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
       Array.from(this.activityRegistry.values())
