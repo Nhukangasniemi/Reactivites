@@ -40,24 +40,26 @@ export default class ActivityStore {
       .then(() => console.log(this.hubConnection!.state))
       .catch(err => console.log("Error Establishing connection", err));
     //Same action name with chathub 'ReceiveComment'
-    this.hubConnection.on('ReceiveComment', comment => {
-      this.activity!.comments.push(comment)
-    })
+    this.hubConnection.on("ReceiveComment", comment => {
+      runInAction(() => {
+        this.activity!.comments.push(comment);
+      });
+    });
   };
 
   @action stopHubConnection = () => {
     this.hubConnection!.stop();
-  }
+  };
 
   //Not using axios but invoking method on server, directly from client
   @action addComment = async (values: any) => {
     values.activityId = this.activity!.id;
     try {
-      await this.hubConnection!.invoke("SendComment", values)
+      await this.hubConnection!.invoke("SendComment", values);
     } catch (err) {
-      console.log((err))
+      console.log(err);
     }
-  }
+  };
 
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
