@@ -28,7 +28,7 @@ export default class ActivityStore {
   @observable.ref hubConnection: HubConnection | null = null;
 
   //This action create connection to hub and send up token as query string
-  @action createHubConnection = () => {
+  @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl("http://localhost:5000/chat", {
         accessTokenFactory: () => this.rootStore.commonStore.token!
@@ -38,6 +38,10 @@ export default class ActivityStore {
     this.hubConnection
       .start()
       .then(() => console.log(this.hubConnection!.state))
+      .then(() => {
+        console.log("Attempting to join group");
+        this.hubConnection!.invoke("AddToGroup", activityId);
+      })
       .catch(err => console.log("Error Establishing connection", err));
     //Same action name with chathub 'ReceiveComment'
     this.hubConnection.on("ReceiveComment", comment => {
@@ -45,10 +49,18 @@ export default class ActivityStore {
         this.activity!.comments.push(comment);
       });
     });
+    this.hubConnection.on("Send", message => {
+      toast.info(message);
+    });
   };
 
   @action stopHubConnection = () => {
-    this.hubConnection!.stop();
+    this.hubConnection!.invoke("RemoveFromGroup", this.activity!.id)
+      .then(() => {
+        this.hubConnection!.stop();
+      })
+      .then(() => console.log("Connection stopped"))
+      .catch(err => console.log(err));
   };
 
   //Not using axios but invoking method on server, directly from client
@@ -157,7 +169,7 @@ export default class ActivityStore {
       attendees.push(attendee);
       activity.attendees = attendees;
       activity.isHost = true;
-      activity.comments = []
+      activity.comments = [];
       runInAction("creating activity", () => {
         this.activityRegistry.set(activity.id, activity);
         this.submitting = false;
