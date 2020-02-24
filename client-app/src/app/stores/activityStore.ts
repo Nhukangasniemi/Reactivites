@@ -6,6 +6,12 @@ import { history } from "./../../index";
 import { toast } from "react-toastify";
 import { RootStore } from "./rootStore";
 import { createAttendee } from "../common/util/util";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel
+} from "@microsoft/signalr";
+import CommonStore from "./commonStore";
 
 export default class ActivityStore {
   rootStore: RootStore;
@@ -19,6 +25,29 @@ export default class ActivityStore {
   @observable submitting = false;
   @observable target = "";
   @observable loading = false;
+  @observable.ref hubConnection: HubConnection | null = null;
+
+  //This action create connection to hub and send up token as query string
+  @action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5000/chat", {
+        accessTokenFactory: () => this.rootStore.commonStore.token!
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+    this.hubConnection
+      .start()
+      .then(() => console.log(this.hubConnection!.state))
+      .catch(err => console.log("Error Establishing connection", err));
+    //Same action name with chathub 'ReceiveComment'
+    this.hubConnection.on('ReceiveComment', comment => {
+      this.activity!.comments.push(comment)
+    })
+  };
+
+  @action stopHubConnection = () => {
+    this.hubConnection!.stop();
+  }
 
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
@@ -110,12 +139,12 @@ export default class ActivityStore {
     this.submitting = true;
     try {
       await agent.Activities.create(activity);
-      const attendee = createAttendee(this.rootStore.userStore.user!)
-      attendee.isHost = true
-      let attendees = []
-      attendees.push(attendee)
-      activity.attendees = attendees
-      activity.isHost = true
+      const attendee = createAttendee(this.rootStore.userStore.user!);
+      attendee.isHost = true;
+      let attendees = [];
+      attendees.push(attendee);
+      activity.attendees = attendees;
+      activity.isHost = true;
       runInAction("creating activity", () => {
         this.activityRegistry.set(activity.id, activity);
         this.submitting = false;
